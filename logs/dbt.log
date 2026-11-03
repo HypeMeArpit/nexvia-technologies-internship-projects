@@ -80,3 +80,34 @@ Happy modeling!
 [0m21:17:05.224302 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002204E6C5E00>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000022072D93BF0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000022072CB7680>]}
 [0m21:17:05.224640 [debug] [MainThread]: Flushing usage events
 [0m21:17:17.392154 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m18:27:18.123029 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AFB52C2F0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AF8B6FB10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AFDDDBC50>]}
+
+
+============================== 18:27:18.131987 | 73d7d10a-f68b-477a-99d5-f498199c32b0 ==============================
+[0m18:27:18.131987 [info ] [MainThread]: Running with dbt=1.13.0-b1
+[0m18:27:18.132830 [debug] [MainThread]: running dbt with arguments {'maximum_seed_size_mib': '1', 'no_print': 'None', 'static_parser': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'version_check': 'True', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'False', 'cache_selected_only': 'False', 'log_format': 'default', 'debug': 'False', 'fail_fast': 'False', 'profiles_dir': 'C:\\Users\\hello\\.dbt', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'partial_parse': 'True', 'indirect_selection': 'eager', 'hints_enabled': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'invocation_command': 'dbt seed', 'log_path': 'logs'}
+[0m18:27:18.133222 [debug] [MainThread]: Tracking: tracking
+[0m18:27:18.133805 [error] [MainThread]: [[31mERROR[0m]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path C:\Users\hello\Customer-360-Marketing-Attribution\dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m18:27:18.135051 [debug] [MainThread]: Command `dbt seed` failed at 18:27:18.134892 after 0.28 seconds
+[0m18:27:18.135524 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AFDB97A80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AFDD6A570>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000015AFDDEABE0>]}
+[0m18:27:18.136037 [debug] [MainThread]: Flushing usage events
+[0m18:27:19.312173 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m17:48:16.069754 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C2A5402F0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C27953B10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C2CBEFC50>]}
+
+
+============================== 17:48:16.085200 | befb1e39-c4ee-449b-9b99-f12707e0324b ==============================
+[0m17:48:16.085200 [info ] [MainThread]: Running with dbt=1.13.0-b1
+[0m17:48:16.086907 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'maximum_seed_size_mib': '1', 'target_path': 'None', 'version_check': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'empty': 'False', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'profiles_dir': 'C:\\Users\\hello\\.dbt', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'partial_parse': 'True', 'indirect_selection': 'eager', 'hints_enabled': 'True', 'invocation_command': 'dbt build --select mart_marketing_attribution', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_path': 'logs'}
+[0m17:48:16.087535 [debug] [MainThread]: Tracking: tracking
+[0m17:48:16.088219 [error] [MainThread]: [[31mERROR[0m]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path C:\Users\hello\Customer-360-Marketing-Attribution\dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m17:48:16.089836 [debug] [MainThread]: Command `dbt build` failed at 17:48:16.089668 after 0.58 seconds
+[0m17:48:16.090329 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C2C9A7A80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C2CB7A570>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000026C2CC02BE0>]}
+[0m17:48:16.090791 [debug] [MainThread]: Flushing usage events

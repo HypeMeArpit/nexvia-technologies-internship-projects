@@ -1,0 +1,9 @@
+version: 2
+
+seeds:
+  - name: channel_mapping
+    columns:
+      - name: traffic_source
+        data_tests:
+          - unique
+          - not_null

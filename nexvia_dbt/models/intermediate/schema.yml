@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: int_events__user_resolved
+    description: "Event-grain table with backfilled user_ids for attribution."
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: resolved_user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: source('thelook', 'users')
+                field: id
+      - name: ad_channel
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+  - name: int_sessions
+    columns:
+      - name: session_id
+        data_tests: [unique, not_null]          
