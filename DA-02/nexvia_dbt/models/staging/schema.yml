@@ -1,0 +1,134 @@
+version: 2
+
+sources:
+  # Phase 1 Sources (Restored)
+  - name: raw
+    schema: raw_data
+    tables:
+      - name: crm_profiles
+      - name: ad_spend
+
+  # Phase 2 Sources
+  - name: thelook
+    database: bigquery-public-data
+    schema: thelook_ecommerce
+    tables:
+      - name: users
+      - name: orders
+      - name: order_items
+      - name: events
+
+models:
+
+  - name: stg_thelook__orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: source('thelook', 'users')
+                field: id
+      - name: order_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Processing', 'Shipped', 'Complete', 'Returned', 'Cancelled']
+
+  - name: stg_thelook__order_items
+    columns:
+      - name: order_item_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_thelook__orders')
+                field: order_id
+      - name: sale_price
+        tests:
+          - not_null
+
+  - name: stg_thelook__events
+    columns:
+      - name: event_id
+        tests:
+          - unique
+          - not_null
+      - name: session_id
+        tests:
+          - not_null
+
+  - name: stg_crm_profiles
+    description: "Synthetic CRM profiles, one row per user."
+    columns:
+      - name: user_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_thelook__users')
+                field: user_id
+      - name: customer_persona
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Budget Shopper', 'Impulse Buyer', 'Brand Loyalist', 'Window Shopper']
+      - name: account_manager
+        data_tests:
+          - not_null
+      - name: loyalty_score
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 100
+
+  - name: stg_thelook__users
+    description: "Users from the public thelook_ecommerce dataset."
+    columns:
+      - name: user_id
+        data_tests:
+          - unique
+          - not_null
+      - name: age
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
+
+  - name: stg_ad_spend
+    description: "Synthetic daily ad spend by channel."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [spend_date, campaign_channel]
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "clicks <= impressions"
+    columns:
+      - name: spend_date
+        data_tests:
+          - not_null
+      - name: campaign_channel
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Google Ads', 'Facebook Ads', 'Email', 'Organic Search', 'Twitter']
+      - name: spend_amount
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
