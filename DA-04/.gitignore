@@ -1,0 +1,26 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets - never commit credentials
+.env
+*.pem
+
+# Data - too large for GitHub; README explains how to download it
+data/raw/
+data/processed/*.parquet
+data/processed/*.csv
+
+# Generated outputs (keep sample outputs in docs/ instead)
+reports/*.pdf
+
+# Office temp / lock files
+~$*
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
