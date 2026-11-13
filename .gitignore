@@ -1,0 +1,19 @@
+# Repo-wide safety net. Each project also has its own .gitignore.
+
+# Secrets - never commit
+.env
+gcp-key*
+*service-account*.json
+*.pem
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Office / OS clutter
+~$*
+.DS_Store
+Thumbs.db
