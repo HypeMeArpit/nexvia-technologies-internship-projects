@@ -32,7 +32,11 @@ FROM vw_interest_variance_drivers
 WHERE ABS(volume_effect + mix_effect + rate_effect - total_variance) > 0.01
 UNION ALL
 SELECT 'budget months missing (expect 12)', 12 - COUNT(DISTINCT month_start)
-FROM fact_budget;
+FROM fact_budget
+UNION ALL
+SELECT 'loans without a score, PD or valid risk band', COUNT(*)
+FROM fact_loan l LEFT JOIN dim_risk_band rb ON rb.risk_band = l.risk_band
+WHERE l.score_points IS NULL OR l.pd_12m IS NULL OR rb.risk_band IS NULL;
 
 -- FY summary: P&L by year
 SELECT fiscal_year,

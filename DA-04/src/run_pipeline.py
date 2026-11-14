@@ -2,7 +2,7 @@
 Run the whole DA-04 pipeline with one command, in the right order:
 
     1. sql/01_create_schema.sql, 02_seed_reference_data.sql   rebuild the database
-    2. build_loan_book.py, build_ledger.py                     build the data files
+    2. build_loan_book.py, credit_scorecard.py, build_ledger.py   build the data files
     3. pytest                                                  test them
     4. load_loan_book.py, load_ledger.py                       load them into MySQL
     5. sql/03, 04, 05                                          create reports, run controls
@@ -94,10 +94,11 @@ def main():
             step("2a. Extract from raw Lending Club file")
             import profile_data
             profile_data.main()
-        step("2. Build loan book and general ledger")
-        import build_loan_book, build_ledger
+        step("2. Build loan book, credit scorecard and general ledger")
+        import build_loan_book, credit_scorecard, build_ledger
         build_loan_book.main()
-        build_ledger.main()
+        credit_scorecard.main()   # adds score, PD and risk band to every loan
+        build_ledger.main()       # uses the scorecard PDs for the loan-loss allowance
 
     if not args.skip_tests:
         step("3. Tests")

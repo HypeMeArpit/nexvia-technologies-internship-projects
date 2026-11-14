@@ -158,3 +158,14 @@ CREATE TABLE fact_kpi_driver (
     PRIMARY KEY (month_start, kpi_code),
     CONSTRAINT fk_kpi_month FOREIGN KEY (month_start) REFERENCES dim_month(month_start)
 );
+
+-- Credit scorecard risk bands (from reports/scorecard/risk_bands.csv). R1 = safest.
+CREATE TABLE dim_risk_band (
+    risk_band        VARCHAR(20)  NOT NULL PRIMARY KEY,
+    sort_order       TINYINT      NOT NULL,
+    score_from       SMALLINT     NOT NULL,
+    score_to         SMALLINT     NOT NULL,
+    train_bad_rate   DECIMAL(7,4) NOT NULL,   -- 36-month default rate, 2014 development sample
+    oot_bad_rate     DECIMAL(7,4) NOT NULL,   -- 36-month default rate, 2015 out-of-time sample
+    avg_pd_36m       DECIMAL(7,4) NOT NULL    -- calibrated model PD
+);

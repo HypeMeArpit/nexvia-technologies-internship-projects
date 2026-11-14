@@ -31,9 +31,9 @@ BUDGET_YEAR = 2018
 RNG = np.random.default_rng(7)  # fixed seed -> identical synthetic numbers on every run
 
 # ---------------------------------------------------------------- credit assumptions
-# Interim 12-month probability of default by grade, until the scorecard (Day 3) gives
-# loan-level PDs. Derived from 2014 36-month loans: lifetime bad rate -> annual rate
-# using 1 - (1 - lifetime) ** (1/3).
+# Fallback 12-month probability of default by grade, used only for a loan with no scorecard
+# PD (normally every loan has one: fact_loan.pd_12m from credit_scorecard.py).
+# Derived from 2014 36-month loans: lifetime bad rate -> annual rate via 1 - (1 - lifetime) ** (1/3).
 LIFETIME_BAD_RATE_2014 = {"A": 0.0538, "B": 0.1072, "C": 0.1719, "D": 0.2217,
                           "E": 0.2703, "F": 0.2949, "G": 0.3631}
 INTERIM_PD_12M = {g: 1 - (1 - r) ** (1 / 3) for g, r in LIFETIME_BAD_RATE_2014.items()}
@@ -343,7 +343,7 @@ def build_kpi_drivers(actual: pd.DataFrame, budget: pd.DataFrame) -> pd.DataFram
 def main():
     loans = pd.read_parquet(DATA / "fact_loan.parquet")
     if "pd_12m" not in loans:
-        loans["pd_12m"] = np.nan  # filled by the scorecard on Day 3
+        loans["pd_12m"] = np.nan  # scorecard not run yet -> grade fallback PDs
     months = pd.read_parquet(DATA / "fact_loan_month.parquet")
 
     act = loan_activity(loans, months)

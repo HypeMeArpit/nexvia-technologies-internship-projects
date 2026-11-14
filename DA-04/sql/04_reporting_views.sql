@@ -8,6 +8,7 @@
 --   vw_interest_variance_drivers interest income variance split into volume / mix / rate
 --   vw_kpi_variance             operating drivers actual vs budget (headcount, CAC, rate...)
 --   vw_portfolio_monthly        loan book health by month and grade (for dashboards)
+--   vw_portfolio_by_risk_band   loan book by month and scorecard risk band
 -- Re-runnable. Requires MySQL 8.0+ (window functions, CTEs).
 -- Sign convention for reports: revenue and expenses are both shown as POSITIVE numbers;
 -- variance is shown as FAVOURABLE (+) / UNFAVOURABLE (-).
@@ -251,3 +252,26 @@ FROM fact_loan_month lm
 JOIN fact_loan l ON l.loan_id = lm.loan_id
 WHERE lm.month_start <= (SELECT MAX(month_start) FROM fact_gl)
 GROUP BY lm.month_start, YEAR(lm.month_start), l.grade;
+
+-- ---------------------------------------------------------------------
+-- Loan book by scorecard risk band: does the model separate good and bad loans in OUR book?
+-- ---------------------------------------------------------------------
+CREATE OR REPLACE VIEW vw_portfolio_by_risk_band AS
+SELECT
+    lm.month_start,
+    YEAR(lm.month_start)                                                AS fiscal_year,
+    l.risk_band,
+    rb.sort_order                                                       AS risk_band_order,
+    COUNT(CASE WHEN lm.closing_balance > 0 THEN 1 END)                  AS active_loans,
+    SUM(lm.disbursed_amt)                                               AS originations,
+    SUM(lm.closing_balance)                                             AS closing_balance,
+    SUM(CASE WHEN lm.month_status = 'Delinquent' THEN lm.closing_balance ELSE 0 END) AS delinquent_balance,
+    SUM(lm.charge_off_amt)                                              AS charge_offs,
+    -- balance-weighted average 12-month PD from the scorecard
+    SUM(lm.closing_balance * l.pd_12m) / NULLIF(SUM(lm.closing_balance), 0) AS avg_pd_12m,
+    AVG(l.score_points)                                                 AS avg_score
+FROM fact_loan_month lm
+JOIN fact_loan l        ON l.loan_id = lm.loan_id
+JOIN dim_risk_band rb   ON rb.risk_band = l.risk_band
+WHERE lm.month_start <= (SELECT MAX(month_start) FROM fact_gl)
+GROUP BY lm.month_start, YEAR(lm.month_start), l.risk_band, rb.sort_order;
