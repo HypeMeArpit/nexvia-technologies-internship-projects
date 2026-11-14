@@ -1,0 +1,20 @@
+feature,iv,strength,selected
+fico,0.13398670509527658,Medium,True
+annual_inc,0.08937886765878258,Weak,True
+dti,0.05245435996412447,Weak,True
+mort_acc,0.047210018729508,Weak,True
+loan_to_income,0.04457274572151045,Weak,True
+home_ownership,0.04217764478016023,Weak,False
+inq_last_6mths,0.028386263453658838,Weak,True
+credit_history_months,0.024201495748020177,Weak,True
+revol_bal,0.02292397794469233,Weak,True
+emp_length_years,0.022042374942578585,Weak,True
+verification_status,0.021418660472249686,Weak,True
+purpose,0.019203498600542098,Not useful,False
+revol_util,0.01892628538291712,Not useful,False
+loan_amnt,0.009364174736119488,Not useful,False
+total_acc,0.007982860113555777,Not useful,False
+pub_rec,0.0035639792328725243,Not useful,False
+pub_rec_bankruptcies,0.0035259521322843473,Not useful,False
+delinq_2yrs,0.0030120235271279498,Not useful,False
+open_acc,0.0006077751668607606,Not useful,False
