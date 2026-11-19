@@ -1,0 +1,19 @@
+account_code,account_name,account_type,statement,report_line,normal_balance,sort_order,report_line_order
+1000,Cash and cash equivalents,Asset,BS,Cash,Debit,10,10
+1100,Loans receivable - gross,Asset,BS,"Loans receivable, net",Debit,20,20
+1150,Allowance for credit losses,Asset,BS,"Loans receivable, net",Credit,30,20
+2000,Funding facility borrowings,Liability,BS,Borrowings,Credit,40,40
+2100,Income tax payable,Liability,BS,Other liabilities,Credit,50,50
+3000,Share capital,Equity,BS,Share capital,Credit,60,60
+3100,Retained earnings,Equity,BS,Retained earnings,Credit,70,70
+4000,Interest income on loans,Revenue,PL,Interest income,Credit,100,100
+4100,Late fee income,Revenue,PL,Fee income,Credit,110,110
+4200,Origination fee income,Revenue,PL,Fee income,Credit,120,110
+5000,Interest expense on borrowings,Expense,PL,Interest expense,Debit,200,200
+5100,Provision for credit losses,Expense,PL,Provision for credit losses,Debit,210,210
+6000,Salaries and benefits,Expense,PL,Operating expenses,Debit,300,300
+6100,Marketing and acquisition,Expense,PL,Operating expenses,Debit,310,300
+6200,Technology and data,Expense,PL,Operating expenses,Debit,320,300
+6300,Collections and servicing,Expense,PL,Operating expenses,Debit,330,300
+6400,General and administrative,Expense,PL,Operating expenses,Debit,340,300
+7000,Income tax expense,Expense,PL,Income tax,Debit,400,400

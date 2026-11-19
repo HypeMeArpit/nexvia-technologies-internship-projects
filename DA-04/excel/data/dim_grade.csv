@@ -1,0 +1,8 @@
+grade,grade_label,sort_order
+A,A - Prime,1
+B,B - Near prime,2
+C,C - Standard,3
+D,D - Elevated risk,4
+E,E - High risk,5
+F,F - Very high risk,6
+G,G - Highest risk,7

@@ -1,0 +1,315 @@
+// =====================================================================
+// Power Query (M) code for the DA-04 Power Pivot model
+// One query per CSV in excel/data/. All queries read the folder from ONE
+// parameter, DataFolder, so the workbook works on any computer: change the
+// parameter, Refresh All, done.
+//
+// HOW TO USE (Excel -> Data -> Get Data -> Launch Power Query Editor):
+//   1. Home -> Manage Parameters -> New Parameter
+//        Name: DataFolder   Type: Text
+//        Current Value: the full path of your excel\data folder, ENDING WITH A BACKSLASH, e.g.
+//        C:\Users\hello\nexvia-technologies-internship-projects\DA-04\excel\data\
+//   2. For each block below: Home -> New Source -> Other Sources -> Blank Query,
+//      then Home -> Advanced Editor, replace everything with the block's code, Done,
+//      and rename the query (right pane, Name) to the name in the block header.
+//   3. Home -> Close & Load -> Close & Load To... -> "Only Create Connection"
+//      AND tick "Add this data to the Data Model" -> OK.
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// Query name: dim_month        (36 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "dim_month.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"month_end", type date},
+        {"year_num", Int64.Type},
+        {"quarter_num", Int64.Type},
+        {"month_num", Int64.Type},
+        {"month_name", type text},
+        {"year_month_label", type text},
+        {"fiscal_year", Int64.Type}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: dim_account        (18 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "dim_account.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"account_code", Int64.Type},
+        {"account_name", type text},
+        {"account_type", type text},
+        {"statement", type text},
+        {"report_line", type text},
+        {"normal_balance", type text},
+        {"sort_order", Int64.Type},
+        {"report_line_order", Int64.Type}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: dim_department        (6 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "dim_department.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"department_code", type text},
+        {"department_name", type text}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: dim_grade        (7 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "dim_grade.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"grade", type text},
+        {"grade_label", type text},
+        {"sort_order", Int64.Type}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: dim_risk_band        (6 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "dim_risk_band.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"risk_band", type text},
+        {"sort_order", Int64.Type},
+        {"score_from", Int64.Type},
+        {"score_to", Int64.Type},
+        {"train_bad_rate", type number},
+        {"oot_bad_rate", type number},
+        {"avg_pd_36m", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: fact_gl        (4,123 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "fact_gl.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"gl_line_id", Int64.Type},
+        {"journal_id", type text},
+        {"month_start", type date},
+        {"account_code", Int64.Type},
+        {"department_code", type text},
+        {"grade", type text},
+        {"debit", type number},
+        {"credit", type number},
+        {"net_debit", type number},
+        {"source_system", type text},
+        {"description", type text}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: fact_budget        (180 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "fact_budget.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"account_code", Int64.Type},
+        {"department_code", type text},
+        {"budget_amount", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: fact_budget_driver        (84 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "fact_budget_driver.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"grade", type text},
+        {"planned_originations", type number},
+        {"planned_opening_bal", type number},
+        {"planned_yield", type number},
+        {"planned_loss_rate", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: fact_kpi_driver        (252 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "fact_kpi_driver.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"kpi_code", type text},
+        {"actual_value", type number},
+        {"budget_value", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: portfolio_monthly        (252 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "portfolio_monthly.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"fiscal_year", Int64.Type},
+        {"grade", type text},
+        {"active_loans", Int64.Type},
+        {"originations", type number},
+        {"opening_balance", type number},
+        {"closing_balance", type number},
+        {"delinquent_balance", type number},
+        {"interest_received", type number},
+        {"charge_offs", type number},
+        {"recoveries", type number},
+        {"annualised_yield", type number},
+        {"annualised_net_loss_rate", type number},
+        {"delinquency_rate", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: portfolio_by_risk_band        (216 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "portfolio_by_risk_band.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"fiscal_year", Int64.Type},
+        {"risk_band", type text},
+        {"risk_band_order", Int64.Type},
+        {"active_loans", Int64.Type},
+        {"originations", type number},
+        {"closing_balance", type number},
+        {"delinquent_balance", type number},
+        {"charge_offs", type number},
+        {"avg_pd_12m", type number},
+        {"avg_score", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: interest_variance_drivers        (12 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "interest_variance_drivers.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"fiscal_year", Int64.Type},
+        {"actual_interest", type number},
+        {"budget_interest", type number},
+        {"total_variance", type number},
+        {"volume_effect", type number},
+        {"mix_effect", type number},
+        {"rate_effect", type number},
+        {"actual_opening_balance", type number},
+        {"budget_opening_balance", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: check_pl_monthly        (36 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "check_pl_monthly.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"fiscal_year", Int64.Type},
+        {"interest_income", type number},
+        {"fee_income", type number},
+        {"total_revenue", type number},
+        {"interest_expense", type number},
+        {"net_revenue", type number},
+        {"provision_expense", type number},
+        {"risk_adjusted_revenue", type number},
+        {"operating_expenses", type number},
+        {"profit_before_tax", type number},
+        {"income_tax", type number},
+        {"net_income", type number}
+    }, "en-US")
+in
+    Typed
+
+// ---------------------------------------------------------------------
+// Query name: check_balance_sheet        (36 rows)
+// ---------------------------------------------------------------------
+let
+    Source = Csv.Document(File.Contents(DataFolder & "check_balance_sheet.csv"),
+                          [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    // "en-US" culture: dates are YYYY-MM-DD and decimals use "." whatever the PC's region is
+    Typed = Table.TransformColumnTypes(Headers, {
+        {"month_start", type date},
+        {"fiscal_year", Int64.Type},
+        {"cash", type number},
+        {"loans_gross", type number},
+        {"allowance_for_credit_losses", type number},
+        {"loans_net", type number},
+        {"total_assets", type number},
+        {"borrowings", type number},
+        {"income_tax_payable", type number},
+        {"total_liabilities", type number},
+        {"share_capital", type number},
+        {"retained_earnings", type number},
+        {"total_equity", type number},
+        {"total_liabilities_and_equity", type number},
+        {"balance_check", type number}
+    }, "en-US")
+in
+    Typed

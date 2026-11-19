@@ -6,6 +6,7 @@ Run the whole DA-04 pipeline with one command, in the right order:
     3. pytest                                                  test them
     4. load_loan_book.py, load_ledger.py                       load them into MySQL
     5. sql/03, 04, 05                                          create reports, run controls
+    6. export_for_excel.py                                     CSVs for the Power Pivot workbook
 
 Stops at the first failure and exits with code 1, so a scheduler (Power Automate)
 can tell whether the refresh worked. Credentials come from .env.
@@ -116,6 +117,10 @@ def main():
         results = run_sql_file(SQL / name)
         print_results(results)
         check_controls(results, name)
+
+    step("6. Export model tables for Excel Power Pivot")
+    import export_for_excel
+    export_for_excel.main()
 
     print(f"\nPIPELINE OK in {time.time() - start:.0f}s")
 
