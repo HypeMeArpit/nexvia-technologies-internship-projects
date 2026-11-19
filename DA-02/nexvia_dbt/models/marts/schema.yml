@@ -1,77 +1,11 @@
 version: 2
 
 models:
-  - name: mart_customer_rfm
-    columns:
-      - name: user_id
-        data_tests: [unique, not_null]
-      - name: customer_segment
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ['VIP', 'Loyal', 'Active', 'Lapsed', 'Never purchased']
-      - name: historical_revenue
-        data_tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-  - name: mart_marketing_attribution
-    columns:
-      - name: channel
-        data_tests: [unique, not_null]
-      - name: total_spend
-        data_tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-      - name: customers_acquired
-        data_tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-  - name: fct_marketing_spend
-    description: "Daily ad spend by channel (30 days x 5 channels)."
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns: [spend_date, campaign_channel]
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: "clicks <= impressions"
-    columns:
-      - name: spend_amount
-        data_tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-
-  - name: dim_customers
-    description: "One row per user with demographics and CRM attributes where available."
-    columns:
-      - name: user_id
-        data_tests:
-          - unique
-          - not_null
-      - name: customer_persona
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ['Budget Shopper', 'Impulse Buyer', 'Brand Loyalist', 'Window Shopper']
-      - name: loyalty_score
-        data_tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 1
-                max_value: 100
-
   - name: fct_sessions
-    description: "One row per web session, with resolved user and mapped ad channel."
+    description: "One row per web session, with the resolved user and mapped marketing channel."
     columns:
       - name: session_id
-        data_tests:
-          - unique
-          - not_null
+        data_tests: [unique, not_null]
       - name: user_id
         data_tests:
           - relationships:
@@ -83,3 +17,100 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 1
+
+  - name: fct_orders
+    description: "One row per order. net_revenue excludes cancelled and returned items."
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: user_id
+        data_tests: [not_null]
+      - name: net_revenue
+        description: "Revenue kept after cancellations and returns."
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "net_revenue <= gross_revenue"
+
+  - name: mart_customer_rfm
+    description: "One row per user: recency, frequency, monetary value, 1-5 RFM scores, predicted 12-month CLV and segment."
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: r_score
+        description: "Recency score, 5 = ordered most recently (quintiles)."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+      - name: f_score
+        description: "Frequency score = number of orders, capped at 5."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+      - name: m_score
+        description: "Monetary score, 5 = highest net revenue (quintiles)."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+      - name: predicted_clv_12m
+        description: "Average order value x orders per year (tenure floored at 1 year)."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: historical_revenue
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: customer_segment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Champions', 'Loyal', 'At Risk', 'Promising', 'Hibernating', 'Never purchased']
+
+  - name: mart_marketing_attribution
+    description: "One row per channel: spend, revenue under four attribution models, and cost per acquisition."
+    columns:
+      - name: channel
+        data_tests: [unique, not_null]
+      - name: total_spend
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: customers_acquired
+        description: "Users whose first-ever session and an order both fall in the window, by first-session channel."
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: cost_per_acquisition
+        description: "Spend / customers acquired. Empty for unpaid channels."
+
+  - name: mart_attribution_by_model
+    description: "One row per channel and attribution model, with revenue, revenue share, ROAS and ROI."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [channel, attribution_model]
+    columns:
+      - name: attribution_model
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['First touch', 'Last touch', 'Linear', 'Time decay']
+      - name: roi
+        description: "(attributed revenue - spend) / spend. Revenue-based, not profit-based."

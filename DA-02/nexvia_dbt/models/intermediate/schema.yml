@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: int_events__user_resolved
-    description: "Event-grain table with backfilled user_ids for attribution."
+    description: "One row per web event, with the session's user_id and the mapped marketing channel."
     columns:
       - name: event_id
         data_tests: [unique, not_null]
@@ -13,11 +13,14 @@ models:
                 to: source('thelook', 'users')
                 field: id
       - name: ad_channel
+        description: "Marketing channel from seeds/channel_mapping.csv. Warns if a traffic source isn't mapped."
         data_tests:
           - not_null:
               config:
                 severity: warn
+
   - name: int_sessions
+    description: "One row per web session: user, start/end time, entry channel and whether it had a purchase."
     columns:
       - name: session_id
-        data_tests: [unique, not_null]          
+        data_tests: [unique, not_null]

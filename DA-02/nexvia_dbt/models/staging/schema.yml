@@ -1,15 +1,15 @@
 version: 2
 
 sources:
-  # Phase 1 Sources (Restored)
   - name: raw
+    description: "Synthetic tables loaded by scripts/generate_data.py."
     schema: raw_data
     tables:
       - name: crm_profiles
       - name: ad_spend
 
-  # Phase 2 Sources
   - name: thelook
+    description: "Public thelook_ecommerce dataset (users, orders and web events)."
     database: bigquery-public-data
     schema: thelook_ecommerce
     tables:
@@ -19,54 +19,60 @@ sources:
       - name: events
 
 models:
-
   - name: stg_thelook__orders
+    description: "One row per order."
     columns:
       - name: order_id
-        tests:
-          - unique
-          - not_null
+        data_tests: [unique, not_null]
       - name: user_id
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
                 to: source('thelook', 'users')
                 field: id
       - name: order_status
-        tests:
+        data_tests:
           - accepted_values:
               arguments:
                 values: ['Processing', 'Shipped', 'Complete', 'Returned', 'Cancelled']
 
   - name: stg_thelook__order_items
+    description: "One row per item in an order. sale_price is the revenue for that item."
     columns:
       - name: order_item_id
-        tests:
-          - unique
-          - not_null
+        data_tests: [unique, not_null]
       - name: order_id
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('stg_thelook__orders')
                 field: order_id
       - name: sale_price
-        tests:
-          - not_null
+        data_tests: [not_null]
 
   - name: stg_thelook__events
+    description: "One row per web event (page view, cart, purchase...) with its session and traffic source."
     columns:
       - name: event_id
-        tests:
-          - unique
-          - not_null
+        data_tests: [unique, not_null]
       - name: session_id
-        tests:
-          - not_null
+        data_tests: [not_null]
+
+  - name: stg_thelook__users
+    description: "One row per thelook user."
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: age
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 120
 
   - name: stg_crm_profiles
-    description: "Synthetic CRM profiles, one row per user."
+    description: "Synthetic CRM profile, one row per thelook user."
     columns:
       - name: user_id
         data_tests:
@@ -83,8 +89,7 @@ models:
               arguments:
                 values: ['Budget Shopper', 'Impulse Buyer', 'Brand Loyalist', 'Window Shopper']
       - name: account_manager
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: loyalty_score
         data_tests:
           - not_null
@@ -93,22 +98,8 @@ models:
                 min_value: 1
                 max_value: 100
 
-  - name: stg_thelook__users
-    description: "Users from the public thelook_ecommerce dataset."
-    columns:
-      - name: user_id
-        data_tests:
-          - unique
-          - not_null
-      - name: age
-        data_tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                max_value: 120
-
   - name: stg_ad_spend
-    description: "Synthetic daily ad spend by channel."
+    description: "Synthetic daily ad spend per channel (October 2026)."
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -118,14 +109,13 @@ models:
             expression: "clicks <= impressions"
     columns:
       - name: spend_date
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: campaign_channel
         data_tests:
           - not_null
           - accepted_values:
               arguments:
-                values: ['Google Ads', 'Facebook Ads', 'Email', 'Organic Search', 'Twitter']
+                values: ['Google Ads', 'Facebook Ads', 'Email', 'Organic Search']
       - name: spend_amount
         data_tests:
           - not_null

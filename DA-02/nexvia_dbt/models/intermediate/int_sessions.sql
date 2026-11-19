@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 with events as (
     select * from {{ ref('int_events__user_resolved') }}
 )

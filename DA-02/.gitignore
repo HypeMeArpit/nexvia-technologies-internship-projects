@@ -1,5 +1,18 @@
+# credentials
 gcp-key*
+*.json.key
+
+# python
 __pycache__/
 *.py[cod]
 venv/
+.venv/
+
+# dbt
+logs/
+target/
+dbt_packages/
+
+# OS
 .DS_Store
+Thumbs.db

@@ -1,4 +1,7 @@
-{{ config(materialized='table') }}
+-- Identity step: gives every event the user_id of its session.
+-- In thelook each session belongs to at most one user, so this mainly checks that
+-- (see tests/assert_one_user_per_session.sql). With cookie-level data, this is where
+-- anonymous sessions would be linked to a customer after they log in.
 
 with events as (
     select * from {{ ref('stg_thelook__events') }}

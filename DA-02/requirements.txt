@@ -2,3 +2,4 @@ pandas==2.2.2
 pandas-gbq==0.23.1
 Faker==25.0.0
 db-dtypes==1.2.0
+dbt-bigquery==1.12.1

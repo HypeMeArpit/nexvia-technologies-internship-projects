@@ -1,16 +1,11 @@
-WITH source AS (
-    SELECT *
-    FROM {{ source('raw', 'ad_spend') }}
-),
-
-renamed_and_casted AS (
-    SELECT
-        CAST(date AS DATE) AS spend_date,
-        CAST(campaign_channel AS STRING) AS campaign_channel,
-        CAST(spend AS FLOAT64) AS spend_amount,
-        CAST(impressions AS INT64) AS impressions,
-        CAST(clicks AS INT64) AS clicks
-    FROM source
+with source as (
+    select * from {{ source('raw', 'ad_spend') }}
 )
 
-SELECT * FROM renamed_and_casted
+select
+    cast(date as date) as spend_date,
+    cast(campaign_channel as string) as campaign_channel,
+    cast(spend as float64) as spend_amount,
+    cast(impressions as int64) as impressions,
+    cast(clicks as int64) as clicks
+from source

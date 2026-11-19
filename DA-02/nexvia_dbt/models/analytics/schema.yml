@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer 360: one row per user with demographics, CRM attributes, acquisition channel, RFM scores, CLV and segment."
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: customer_persona
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Budget Shopper', 'Impulse Buyer', 'Brand Loyalist', 'Window Shopper']
+      - name: loyalty_score
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 100
+      - name: acquisition_channel
+        description: "Channel of the user's first identified web session."
+      - name: customer_segment
+        description: "Segment from mart_customer_rfm."
+        data_tests: [not_null]
+
+  - name: fct_marketing_spend
+    description: "Daily ad spend, impressions and clicks per channel."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [spend_date, campaign_channel]
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "clicks <= impressions"
+    columns:
+      - name: spend_amount
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0

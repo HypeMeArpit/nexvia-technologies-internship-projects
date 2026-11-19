@@ -1,16 +1,11 @@
-WITH source AS (
-    SELECT *
-    FROM {{ source('thelook', 'users') }}
-),
-
-renamed_and_casted AS (
-    SELECT
-        CAST(id AS INT64) AS user_id,
-        CAST(age AS INT64) AS age,
-        CAST(gender AS STRING) AS gender,
-        CAST(country AS STRING) AS country,
-        CAST(created_at AS TIMESTAMP) AS account_created_at
-    FROM source
+with source as (
+    select * from {{ source('thelook', 'users') }}
 )
 
-SELECT * FROM renamed_and_casted
+select
+    cast(id as int64) as user_id,
+    cast(age as int64) as age,
+    cast(gender as string) as gender,
+    cast(country as string) as country,
+    cast(created_at as timestamp) as account_created_at
+from source

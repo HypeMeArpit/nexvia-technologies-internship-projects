@@ -1,15 +1,10 @@
-WITH source AS (
-    SELECT *
-    FROM {{ source('raw', 'crm_profiles') }}
-),
-
-renamed_and_casted AS (
-    SELECT
-        CAST(user_id AS INT64) AS user_id,
-        CAST(customer_persona AS STRING) AS customer_persona,
-        CAST(account_manager AS STRING) AS account_manager,
-        CAST(loyalty_score AS INT64) AS loyalty_score
-    FROM source
+with source as (
+    select * from {{ source('raw', 'crm_profiles') }}
 )
 
-SELECT * FROM renamed_and_casted
+select
+    cast(user_id as int64) as user_id,
+    cast(customer_persona as string) as customer_persona,
+    cast(account_manager as string) as account_manager,
+    cast(loyalty_score as int64) as loyalty_score
+from source
