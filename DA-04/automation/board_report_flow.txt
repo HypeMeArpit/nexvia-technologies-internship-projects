@@ -1,0 +1,28 @@
+# Power Automate Desktop flow: DA-04 Monthly Board Report
+# To recreate: new flow -> open designer -> paste everything below the comment lines.
+# Then set ProjectDir and RecipientEmail, and replace <YOUR_GMAIL_APP_PASSWORD> and
+# your.sender@gmail.com in the three Send email actions (use 'Direct encrypted input').
+# Secrets and personal addresses are removed from this published copy.
+SET ProjectDir TO $'''C:\\Users\\hello\\nexvia-technologies-internship-projects\\DA-04'''
+SET ReportMonth TO $'''2018-12'''
+SET PdfPath TO $'''%ProjectDir%\\reports\\Arcadia_Board_Report_%ReportMonth%.pdf'''
+SET RecipientEmail TO $'''board.recipient@example.com'''
+Scripting.RunDOSCommand.RunDOSCommand DOSCommandOrApplication: $'''\"%ProjectDir%\\.venv\\Scripts\\python.exe\" src\\run_pipeline.py --skip-build''' WorkingDirectory: ProjectDir StandardOutput=> CommandOutput StandardError=> CommandErrorOutput ExitCode=> CommandExitCode
+IF CommandExitCode <> 0 THEN
+    Email.SendEmail.AuthenticateAndSend SMTPServer: $'''smtp.gmail.com''' Port: 587 EnableSSL: True Username: $'''your.sender@gmail.com''' Password: $'''<YOUR_GMAIL_APP_PASSWORD>''' AcceptUntrustedCertificates: False SendFrom: $'''your.sender@gmail.com''' SendTo: RecipientEmail Subject: $'''FAILED: Arcadia board report – data refresh (%ReportMonth%)''' Body: $'''The monthly data refresh failed, so no board report was sent.
+
+Pipeline output: %CommandOutput%
+
+Errors: %CommandErrorOutput%''' IsBodyHtml: False
+    EXIT Code: 0 ErrorMessage: $'''Data refresh failed - see email'''
+END
+Scripting.RunDOSCommand.RunDOSCommand DOSCommandOrApplication: $'''cscript //nologo \"%ProjectDir%\\automation\\refresh_and_export.vbs\" \"%PdfPath%\"''' WorkingDirectory: ProjectDir StandardOutput=> CommandOutput2 StandardError=> CommandErrorOutput2 ExitCode=> CommandExitCode2
+IF CommandExitCode2 <> 0 THEN
+    Email.SendEmail.AuthenticateAndSend SMTPServer: $'''smtp.gmail.com''' Port: 587 EnableSSL: True Username: $'''your.sender@gmail.com''' Password: $'''<YOUR_GMAIL_APP_PASSWORD>''' AcceptUntrustedCertificates: False SendFrom: $'''your.sender@gmail.com''' SendTo: RecipientEmail Subject: $'''FAILED: Arcadia board report – PDF export (%ReportMonth%)''' Body: $'''The board report PDF could not be created.
+
+Script output: %CommandOutput2%
+
+Errors: %CommandErrorOutput2%''' IsBodyHtml: False
+    EXIT Code: 0 ErrorMessage: $'''PDF export failed - see email'''
+END
+Email.SendEmail.AuthenticateAndSend SMTPServer: $'''smtp.gmail.com''' Port: 587 EnableSSL: True Username: $'''your.sender@gmail.com''' Password: $'''<YOUR_GMAIL_APP_PASSWORD>''' AcceptUntrustedCertificates: False SendFrom: $'''your.sender@gmail.com''' SendTo: RecipientEmail Subject: $'''Arcadia Lending – Monthly Board Report %ReportMonth%''' Body: $'''Please find attached the board report for %ReportMonth%. Figures are refreshed from the finance warehouse and reconciled (all controls passed).''' IsBodyHtml: False Attachments: PdfPath
